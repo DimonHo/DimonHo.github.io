@@ -1,0 +1,102 @@
+<p>最近在使用百度的echarts插件做一个图表，分享一下做图的心得。
+这是echarts默认的颜色：
+<img alt="原始效果" src="https://github.com/DimonHo/DH_Note/blob/master/javaScript/images/image0001.png"/>
+echarts默认的颜色列表只有10个颜色。
+<img alt="echarts.color" src="https://github.com/DimonHo/DH_Note/blob/master/javaScript/images/image0003.png"/>
+既然如此，那么我们修改一下这个color列表的颜色就好了。先上效果图
+<img alt="效果图" src="https://github.com/DimonHo/DH_Note/blob/master/javaScript/images/image0002.png"/>
+<code></code>`javaScript
+/<em>
+// startColor：开始颜色hex
+// endColor：结束颜色hex
+// step:几个阶级（几步）
+</em>/
+function gradientColor(startColor,endColor,step){
+   startRGB = colorToRgb(startColor);//转换为rgb数组模式
+   startR = startRGB[0];
+   startG = startRGB[1];
+   startB = startRGB[2];</p>
+
+<p>   endRGB = colorToRgb(endColor);
+   endR = endRGB[0];
+   endG = endRGB[1];
+   endB = endRGB[2];</p>
+
+<p>   sR = (endR-startR)/step;//总差值
+   sG = (endG-startG)/step;
+   sB = (endB-startB)/step;</p>
+
+<p>   var colorArr = [];
+   for(var i=0;i&lt;step;i++){
+       //计算每一步的hex值
+       var hex = colorToHex(&#39;rgb(&#39;+parseInt((sR<em>i+startR))+&#39;,&#39;+parseInt((sG</em>i+startG))+&#39;,&#39;+parseInt((sB*i+startB))+&#39;)&#39;);
+       colorArr.push(hex);
+   }
+   return colorArr;
+}</p>
+
+<p>// 将hex表示方式转换为rgb表示方式(这里返回rgb数组模式)
+function colorToRgb(sColor){
+   var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+   var sColor = sColor.toLowerCase();
+   if(sColor &amp;&amp; reg.test(sColor)){
+       if(sColor.length === 4){
+           var sColorNew = &quot;#&quot;;
+           for(var i=1; i&lt;4; i+=1){
+               sColorNew += sColor.slice(i,i+1).concat(sColor.slice(i,i+1));
+           }
+           sColor = sColorNew;
+       }
+       //处理六位的颜色值
+       var sColorChange = [];
+       for(var i=1; i&lt;7; i+=2){
+           sColorChange.push(parseInt(&quot;0x&quot;+sColor.slice(i,i+2)));
+       }
+       return sColorChange;
+   }else{
+       return sColor;
+   }
+};</p>
+
+<p>// 将rgb表示方式转换为hex表示方式
+function colorToHex(rgb){
+   var <em>this = rgb;
+   var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+   if(/^(rgb|RGB)/.test(</em>this)){
+       var aColor = <em>this.replace(/(?:(|)|rgb|RGB)*/g,&quot;&quot;).split(&quot;,&quot;);
+       var strHex = &quot;#&quot;;
+       for(var i=0; i&lt;aColor.length; i++){
+           var hex = Number(aColor[i]).toString(16);
+           hex = hex&lt;10 ? 0+&#39;&#39;+hex :hex;// 保证每个rgb的值为2位
+           if(hex === &quot;0&quot;){
+               hex += hex;
+           }
+           strHex += hex;
+       }
+       if(strHex.length !== 7){
+           strHex = </em>this;
+       }</p>
+
+<pre><code>   return strHex;</code></pre>
+
+<p>   }else if(reg.test(<em>this)){
+       var aNum = </em>this.replace(/#/,&quot;&quot;).split(&quot;&quot;);
+       if(aNum.length === 6){
+           return <em>this;
+       }else if(aNum.length === 3){
+           var numHex = &quot;#&quot;;
+           for(var i=0; i&lt;aNum.length; i+=1){
+               numHex += (aNum[i]+aNum[i]);
+           }
+           return numHex;
+       }
+   }else{
+       return </em>this;
+   }
+}
+<code></code><code>
+调用方法赋值给color属性
+</code>lineOption.color=gradientColor(&#39;#e82400&#39;,&#39;#8ae800&#39;,_fwqsSize)`</p>
+
+<p>本文代码参考：http://www.cnblogs.com/guofei0925/p/5761333.html#commentform
+原文中关于正则表达式分割rgb颜色有点问题，在这里我已经修改好了。直接拿去用就好了。</p>
