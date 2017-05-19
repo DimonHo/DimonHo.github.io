@@ -387,7 +387,7 @@ var graphCharts = echarts.init(document.getElementById('graphCharts'));
 //指定图表的配置项和数据
 
 $.ajax({
-	url:'../data/line10.json',
+	url:'./lineData10.json',
 	dataType:'json'
 }).done(function(reData){
 	var lineOption = $.extend(true,{},pubOption);
@@ -403,26 +403,6 @@ $.ajax({
 	lineOption.series = reData.lineDatas;
 	// 使用刚指定的配置项和数据显示图表。
 	lineCharts.setOption(lineOption,true);
-}).done(function(){
-	$.ajax({
-		url:'../data/graph10.json',
-		dataType:'json'
-	}).done(function(reData){
-		var graphOption = $.extend(true,{},pubOption);
-		console.log(graphOption);
-		graphOption.title.text='關係圖';
-		graphOption.series[0] = {};
-		graphOption.series[0].type='graph';
-		graphOption.series[0].layout='circular';
-		graphOption.series[0].focusNodeAdjacency = true;
-		graphOption.series[0].nodes = reData.nodes;
-		graphOption.series[0].edges = reData.edges;
-		// 使用刚指定的配置项和数据显示图表。
-		graphCharts.setOption(graphOption,true);
-		graphCharts.on("click",function(params){
-			params.__focusNodeAdjacency();
-		})
-	});
 });
 
 
