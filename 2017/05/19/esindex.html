@@ -1,0 +1,433 @@
+<%@ page language="java" contentType="text/html; charset=utf8"
+    pageEncoding="utf8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<title>Index echarts3</title>
+<script src="https://cdn.bootcss.com/echarts/3.5.4/echarts.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<style type="text/css">
+div{
+width:100%;
+height:500px;
+}
+</style>
+
+</head>
+<body>
+
+<div id="lineCharts"></div>
+<div id="graphCharts"></div>
+<div id="main"></div>
+<script>
+var defaultTitle = { //title其实可以设置多个，可以为数组[]，也可以为{}
+	show:true, //是否显示
+	text:'',
+	link:'', //标题文本超链接
+	target:'', //指定窗口打开主标题超链接。
+	textStyle:{
+		color:'#333', //主标题文字的颜色
+		fontStyle:'normal', //'italic', 'oblique' 字体风格
+		fontWeight:'bolder', //'bold', 'bolder', 'lighter', 100 | 200 | 300 ..文字字体的粗细
+		fontFamily:'sans-serif', //主标题文字的字体系列
+		fontSize:18 //主标题文字的字体大小
+	},
+	textAlign:'left', //标题文本水平对齐，支持 'left', 'center', 'right'，默认根据标题位置决定
+	textBaseline:'top', //标题文本垂直对齐，支持 'top', 'middle', 'bottom'，默认根据标题位置决定
+	subtext:'', //副标题
+	sublink:'', //副标题文本超链接
+	subtarget:'blank', //'blank'新窗口打开链接，'self' 在当前窗口打开
+	subtextStyle:{
+		color:'#333',
+		fontStyle:'normal',
+		fontWeight:'bolder',
+		fontFamily:'sans-serif',
+		fontSize:12
+	},
+	padding:5, //[5,10][上下，左右], [5,10,5,10][上，右，下，左] 标题内边距，单位px
+	itemGap:10, //主副标题之间的间距
+	zlevel:0, //zlevel 大的 Canvas 会放在 zlevel 小的 Canvas 的上面。
+	z:2, //组件的所有图形的z值。控制图形的前后顺序。z值小的图形会被z值大的图形覆盖
+	left:'auto',
+	top:'auto',
+	right:'auto',
+	bottom:'auto',
+	backgroundColor:'transparent', //标题背景色，默认透明
+	borderColor:'#ccc', //标题的边框颜色
+	borderWidth:0, //标题的边框线宽
+	shadowBlur:10, //图形阴影的模糊大小
+	shadowColor:'rgba(0, 0, 0, 0.5)', //阴影颜色
+	shadowOffsetX:0, //阴影水平方向上的偏移距离
+	shadowOffsetY:0 //阴影垂直方向上的偏移距离
+};
+
+var defaultLegend = { //图例组件
+		show:true,
+		zlevel:0,
+		z:2,
+		left:'auto',
+		top:'auto',
+		right:'auto',
+		bottom:'auto',
+		width:'auto',
+		height:'auto',
+		orient:'horizontal', //图例列表的布局朝向'horizontal'|'vertical'
+		align:'auto', //图例标记和文本的对齐'auto'|'left'|'right'
+		padding:5,
+		itemGap:10, //图例每项之间的间隔。横向布局时为水平间隔，纵向布局时为纵向间隔
+		itemWidth:25, //图例标记的图形宽度
+		itemHeight:14, //图例标记的图形高度
+		formatter:null, //格式化文本
+		selectedMode:true, //图例选择的模式，控制是否可以通过点击图例改变系列的显示状态。默认开启图例选择，可以设成 false 关闭,也可以'single'|'multiple' 使用单选或者多选模式。
+		inactiveColor:'#ccc', //图例关闭时的颜色。
+		selected:{},
+		textStyle:{
+			color:'#333', //字体颜色
+			fontStyle:'normal', //文字字体的风格'normal'|'italic'|'oblique'
+			fontWeight:'normal', //文字字体的粗细
+			fontFamily:'sans-serif', //文字的字体系列
+			fontSize:12				
+		},
+		tooltip:{}, //图例的 tooltip 配置，配置项同 tooltip。默认不显示，可以在 legend 文字很多的时候对文字做裁剪并且开启 tooltip
+		data:[], //[{name:'',icon:'',textStyle:{}},{},...]
+		backgroundColor:'#ccc', //背景颜色
+		borderColor:'#ccc', //边框颜色
+		borderWidth:1, //边框线宽
+		shadowBlur:10, //图形阴影的模糊大小
+		shadowColor:'rgba(0, 0, 0, 0.5)', //阴影颜色
+		shadowOffsetX:0, //阴影水平方向上的偏移距离
+		shadowOffsetY:0 //阴影垂直方向上的偏移距离
+	};
+
+var defaultGrid = {//直角坐标系内绘图网格，单个 grid 内最多可以放置上下两个 X 轴，左右两个 Y 轴
+		show:false,
+		zlevel:0,
+		z:2,
+		left:'auto',
+		top:'auto',
+		right:'auto',
+		bottom:'auto',
+		width:'auto',
+		height:'auto',
+		containLabel:false, //grid 区域是否包含坐标轴的刻度标签
+		backgroundColor:'#ccc', //背景颜色
+		borderColor:'#ccc', //边框颜色
+		borderWidth:1, //边框线宽
+		shadowBlur:10, //图形阴影的模糊大小
+		shadowColor:'rgba(0, 0, 0, 0.5)', //阴影颜色
+		shadowOffsetX:0, //阴影水平方向上的偏移距离
+		shadowOffsetY:0, //阴影垂直方向上的偏移距离
+		tooltip:{}
+	};
+
+var defaultXAxis = { //直角坐标系 grid 中的 x 轴
+		show:true,
+		gridIndex:0,
+		position:'bottom', //x 轴的位置'top'|'bottom'
+		offset:0, //
+		type:'category', //坐标轴类型'value'|'category'|'time'|'log' 数值轴|类目轴|时间轴|对数轴
+		name:'', //坐标轴名称
+		nameLocation:'start', //坐标轴名称显示位置'start'|'middle'|'end'
+		nameTextStyle:{},
+		nameGap:15, //坐标轴名称与轴线之间的距离
+		nameRotate:null, //坐标轴名字旋转，角度值
+		inverse:false, //是否是反向坐标轴
+		boundaryGap:true, //坐标轴两边留白策略，类目轴和非类目轴的设置和表现不一样
+		//min:null,
+		//max:null, //坐标轴刻度最大值,可以设置成特殊值 'dataMax'，此时取数据在该轴上的最大值作为最大刻度
+		//scale:false, //只在数值轴中（type: 'value'）有效
+		//splitNumber:5, //坐标轴的分割段数,在类目轴中无效
+		//minInterval:0, //自动计算的坐标轴最小间隔大小,只在数值轴中（type: 'value'）有效
+		//interval:0, //强制设置坐标轴分割间隔,无法在类目轴中使用
+		//logBase:10, //对数轴的底数，只在对数轴中（type: 'log'）有效
+		silent:false, //坐标轴是否是静态无法交互
+		triggerEvent:false, //坐标轴的标签是否响应和触发鼠标事件，默认不响应
+		axisLine:{//坐标轴轴线相关设置。
+			show:true,
+			onZero:true,
+			lineStyle:{
+				color:'#333',
+				width:1,
+				type:'solid', //坐标轴线线的类型。'solid'|'dashed'|'dotted'
+				shadowBlur:10, //图形阴影的模糊大小
+				shadowColor:'rgba(0, 0, 0, 0.5)', //阴影颜色
+				shadowOffsetX:0, //阴影水平方向上的偏移距离
+				shadowOffsetY:0, //阴影垂直方向上的偏移距离
+				opacity:1 //图形透明度。支持从 0 到 1 的数字，为 0 时不绘制该图形
+			},
+		},
+		axisTick:{//坐标轴刻度相关设置。
+			show:true, //是否显示坐标轴刻度
+			alignWithLabel:false, //类目轴中在 boundaryGap 为 true 的时候有效，可以保证刻度线和标签对齐
+			interval:'auto', //坐标轴刻度的显示间隔，在类目轴中有效
+			inside:false, //坐标轴刻度是否朝内，默认朝外
+			length:5, //
+			lineStyle:{
+				color:'#333',
+				width:1,
+				type:'solid', //坐标轴线线的类型。'solid'|'dashed'|'dotted'
+				shadowBlur:10, //图形阴影的模糊大小
+				shadowColor:'rgba(0, 0, 0, 0.5)', //阴影颜色
+				shadowOffsetX:0, //阴影水平方向上的偏移距离
+				shadowOffsetY:0, //阴影垂直方向上的偏移距离
+				opacity:1 //图形透明度。支持从 0 到 1 的数字，为 0 时不绘制该图形
+			}
+		},
+		axisLabel:{//坐标轴刻度标签的相关设置
+			show:true, //是否显示刻度标签
+			interval:'auto', //坐标轴刻度标签的显示间隔，在类目轴中有效
+			inside:false, //刻度标签是否朝内，默认朝外
+			rotate:0, //刻度标签旋转的角度，在类目轴的类目标签显示不下的时候可以通过旋转防止标签之间重叠[-90,90]
+			margin:8, //刻度标签与轴线之间的距离
+			formatter:null, //刻度标签的内容格式器
+			showMinLabel:null, //是否显示最小 tick 的 label。可取值 true, false, null。默认自动判定（即如果标签重叠，不会显示最小 tick 的 label）
+			showMaxLabel:null, //
+			textStyle:{}				
+		},
+		//splitLine:{},
+		//splitArea:{}, //坐标轴在 grid 区域中的分隔区域，默认不显示。
+		data:[],  //类目数据，在类目轴（type: 'category'）中有效
+		axisPointer:{
+			show:false,
+			type:'line',
+			label:{
+				show:false,
+				precision:'auto',
+				formatter:null,
+				margin:3,
+				textStyle:{},
+				padding:[5,7,5,7],
+				backgroundColor:'#ccc', //背景颜色
+				borderColor:'#ccc', //边框颜色
+				borderWidth:1, //边框线宽
+				shadowBlur:10, //图形阴影的模糊大小
+				shadowColor:'rgba(0, 0, 0, 0.5)', //阴影颜色
+				shadowOffsetX:0, //阴影水平方向上的偏移距离
+				shadowOffsetY:0 //阴影垂直方向上的偏移距离
+			},
+			tiggerTooltip:true,
+			value:null,
+			
+		}, //坐标轴指示器
+		zlevel:0,
+		z:2
+	};
+
+var defaultYAxis = { //直角坐标系 grid 中的 y 轴
+		show:true,
+		gridIndex:0,
+		position:'left',
+		offset:0,
+		type:'value',
+		name:'',
+		nameLocation:'end',
+		nameTextStyle:{},
+		nameGap:15,
+		nameRotate:null,
+		inverse:false,
+		boundaryGap:true,
+		min:null,
+		max:null,
+		scale:false,
+		splitNumber:5,
+		minInterval:0,
+		//interval:0,
+		logBase:10,
+		silent:false,
+		triggerEvent:false,
+		axisLine:{},
+		axisTick:{},
+		axisLabel:{},
+		splitLine:{},
+		splitArea:{},
+		data:[],
+		axisPointer:{},
+		zlevel:0,
+		z:2
+	};
+
+var defaultPolar = {}; //极坐标系，可以用于散点图和折线图。每个极坐标系拥有一个角度轴和一个半径轴。
+var defaultRadiusAxis = {}; //极坐标系的半径轴
+var defaultAngleAxis = {}; //极坐标系的角度轴。
+var defaultRadar = {}; //雷达图坐标系组件，只适用于雷达图
+var defaultDataZoom = []; //dataZoom 组件 用于区域缩放
+var visualMap = []; //视觉映射组件
+
+
+
+
+var defaultTooltip = { //提示框组件
+		show:true,
+		trigger:'item',
+		axisPointer:{},
+		showContent:true,
+		alwaysShowContent:false,
+		triggerOn:'mousemove|click',
+		showDelay:0,
+		hideDelay:100,
+		enterable:false,
+		confine:false,
+		transitionDuration:0.4,
+		//position:'',
+		formatter:null, //'{a}:{b}:{c}:{d}',
+		backgroundColor:'#ccc', //背景颜色
+		borderColor:'#ccc', //边框颜色
+		borderWidth:1, //边框线宽
+		padding:5, //
+		textStyle:{},
+		extraCssText:null
+	};
+
+//默认的工具栏
+var defaultToolbox = { //工具栏
+		show:true,
+		orient:'horizontal',
+		itemSize:15,
+		itemGap:10,
+		showTitle:true,
+		feature:{
+			saveAsImage:{},
+			restore:{},
+			dataView:{},
+			dataZoom:{},
+			magicType:{
+				show:true,
+				type: ['line', 'bar', 'stack', 'tiled'],
+				title:{
+					line:'切换为折线图',
+					bar:'切换为柱状图',
+					stack:'切换为堆叠',
+					tiled:'切换为平铺'
+				},
+				icon:{
+					//line:'', //Icon 的 path 字符串
+					//bar:'',
+					//stack:'',
+					//tiled:''
+				},
+				iconStyle:{
+					normal:{},
+					emphasis:{}
+				},
+				option:{ //各个类型的专有配置项。在切换到某类型的时候会合并相应的配置项。
+					line:{},
+					bar:{},
+					stack:{},
+					tiled:{}
+				},
+				seriesIndex:{
+					line:[],
+					bar:[],
+					stack:[],
+					tiled:[]
+				},
+				brush:{}
+			},
+			iconStyle:{
+				normal:{},
+				emphasis:{}
+			},
+			zlevel:0,
+			z:2,
+			left:'auto',
+			top:'auto',
+			right:'auto',
+			bottom:'auto',
+			width:'auto',
+			height:'auto'
+		}
+	};
+
+var defaultAxisPointer = {}; //坐标轴指示器（axisPointer）的全局公用设置
+var defaultBrush = {}; //是区域选择组件，用户可以选择图中一部分数据，从而便于向用户展示被选中数据，或者他们的一些统计计算结果
+var defaultGeo ={}; //地图组件
+var defaultParallel ={}; //平行坐标系（Parallel Coordinates） 是一种常用的可视化高维数据的图表。
+var defaultParallelAxis ={}; //平行坐标系中的坐标轴
+var defaultSingleAxis ={}; //单轴。可以被应用到散点图中展现一维数据
+var defaultTimeline ={}; //timeline 组件，提供了在多个 ECharts option 间进行切换、播放等操作的功能。
+var defaultGraphic = [{elements:{}}]; //graphic 是原生图形元素组件image, text, circle, sector, ring, polygon, polyline, rect, line, bezierCurve, arc, group,
+var defaultCalendar ={}; //日历坐标系组件
+var defaultColor=['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3']; //调色盘颜色列表。如果系列没有设置颜色，则会依次循环从该列表中取颜色作为系列颜色
+var defaultBackgroundColor={color:{}}; //背景色，默认无背景
+
+var defaultTextStyle = { //全局的字体样式
+		color:'#fff',
+		fontStyle:'normal', //'normal'|'italic'|'oblique'
+		fontWeight:'normal', //'normal'|'bold'|'bolder'|'lighter'
+		fontFamily:'sans-serif',
+		fontSize:12
+	};
+
+var defaultAnimation = true; //是否开启动画
+var defaultAnimationThreshold = 2000; //是否开启动画的阈值，当单个系列显示的图形数量大于这个阈值时会关闭动画
+var defaultAnimationDuration = 1000; //初始动画的时长，支持回调函数
+var defaultAnimationEasing = 'cubicOut'; //初始动画的缓动效果
+var defaultAnimationDelay = 0; //初始动画的延迟，支持回调函数
+var defaultAnimationDurationUpdate = 300; //数据更新动画的时长,支持回调函数
+var defaultAnimationEasingUpdate = 'cubicOut'; //数据更新动画的缓动效果
+var defaultAnimationDelayUpdate = 0; //数据更新动画的延迟，支持回调函数
+var defaultProgressive = 400; //渐进式渲染时每一帧绘制图形数量，设为 0 时不启用渐进式渲染，支持每个系列单独配置
+var defaultProgressiveThreshold = 3000; //启用渐进式渲染的图形数量阈值，在单个系列的图形数量超过该阈值时启用渐进式渲染。
+var defaultBlendMode = 'source-over'; //图形的混合模式
+var defaultHoverLayerThreshold = 3000; //图形数量阈值，决定是否开启单独的 hover 层，在整个图表的图形数量大于该阈值时开启单独的 hover 层
+var defaultUseUTC = false; //是否使用 UTC 时间var default 
+
+var pubOption = {
+		title:{},
+		tooltip:{},
+		toolbox:[defaultToolbox],
+		series:[]
+	};
+
+
+
+
+
+var lineCharts = echarts.init(document.getElementById('lineCharts'));
+var graphCharts = echarts.init(document.getElementById('graphCharts'));
+//指定图表的配置项和数据
+
+$.ajax({
+	url:'../data/line10.json',
+	dataType:'json'
+}).done(function(reData){
+	var lineOption = $.extend(true,{},pubOption);
+	lineOption.title.text='面积堆积图';
+	lineOption.xAxis = defaultXAxis;
+	lineOption.yAxis = defaultYAxis;
+	lineOption.xAxis.boundaryGap = false;
+	lineOption.xAxis.axisPointer.show = true;
+	lineOption.xAxis.data = ['2012','2013','2014','2015','2016'];
+	lineOption.legend = defaultLegend;
+	lineOption.legend.data = reData.legend;
+	lineOption.legend.bottom='5%';
+	lineOption.series = reData.lineDatas;
+	// 使用刚指定的配置项和数据显示图表。
+	lineCharts.setOption(lineOption,true);
+}).done(function(){
+	$.ajax({
+		url:'../data/graph10.json',
+		dataType:'json'
+	}).done(function(reData){
+		var graphOption = $.extend(true,{},pubOption);
+		console.log(graphOption);
+		graphOption.title.text='關係圖';
+		graphOption.series[0] = {};
+		graphOption.series[0].type='graph';
+		graphOption.series[0].layout='circular';
+		graphOption.series[0].focusNodeAdjacency = true;
+		graphOption.series[0].nodes = reData.nodes;
+		graphOption.series[0].edges = reData.edges;
+		// 使用刚指定的配置项和数据显示图表。
+		graphCharts.setOption(graphOption,true);
+		graphCharts.on("click",function(params){
+			params.__focusNodeAdjacency();
+		})
+	});
+});
+
+
+</script>
+</body>
+</html>
