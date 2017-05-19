@@ -1,0 +1,196 @@
+{
+    "lineDatas": [
+        {
+            "name": "ontology",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                0,
+                4,
+                0,
+                5,
+                0
+            ]
+        },
+        {
+            "name": "actor-network theory",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                4,
+                3,
+                1,
+                0,
+                0
+            ]
+        },
+        {
+            "name": "bruno latour",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                6,
+                1,
+                1,
+                0,
+                0
+            ]
+        },
+        {
+            "name": "expertise",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                1,
+                1,
+                3,
+                3,
+                0
+            ]
+        },
+        {
+            "name": "objectivity",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                2,
+                3,
+                0,
+                1,
+                2
+            ]
+        },
+        {
+            "name": "care",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                0,
+                0,
+                1,
+                5,
+                1
+            ]
+        },
+        {
+            "name": "clinical trials",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                1,
+                1,
+                3,
+                0,
+                2
+            ]
+        },
+        {
+            "name": "controversy",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                0,
+                2,
+                3,
+                1,
+                1
+            ]
+        },
+        {
+            "name": "politics",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                3,
+                0,
+                1,
+                3,
+                0
+            ]
+        },
+        {
+            "name": "co-production",
+            "type": "line",
+            "stack": "keyword",
+            "areaStyle": {
+                "normal": {
+                    "opacity": 0.3
+                }
+            },
+            "lineStyle": "normal:{width:2}",
+            "data": [
+                2,
+                1,
+                2,
+                1,
+                0
+            ]
+        }
+    ],
+    "legend": [
+        "ontology",
+        "actor-network theory",
+        "bruno latour",
+        "expertise",
+        "objectivity",
+        "care",
+        "clinical trials",
+        "controversy",
+        "politics",
+        "co-production"
+    ]
+}
