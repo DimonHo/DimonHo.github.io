@@ -1,0 +1,406 @@
+<!DOCTYPE html><html><head><title>Nginx服务</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+
+.note-content  {font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", STHeiti, "Microsoft YaHei", "WenQuanYi Micro Hei", SimSun, Song, sans-serif;}
+</style></head><body><div id='preview-contents' class='note-content'>
+                        
+                    
+
+
+
+<h1 id="nginx服务">Nginx服务</h1>
+
+<p></p>
+
+
+
+<h3 id="系统配置">系统配置</h3>
+
+<p>CPU: 6核心 <br>
+内存： 8G <br>
+硬盘： 500G <br>
+服务器OS: CentOS7 <br>
+服务器IP: 192.168.0.7/192.168.1.7  </p>
+
+<hr>
+
+
+
+<h3 id="服务管理命令">服务管理命令</h3>
+
+<table><tbody><tr style="font-weight:bold">  <td align="left">管理用户</td>  <td align="left">命令</td>  <td align="left">说明</td></tr><tr>  <td align="left">root</td>  <td align="left">systemctl start nginx</td>  <td align="left">启动nginx服务</td></tr><tr>  <td align="left">root</td>  <td align="left">systemctl stop nginx</td>  <td align="left">停止nginx服务</td></tr><tr>  <td align="left">root</td>  <td align="left">systemctl restart nginx</td>  <td align="left">重启nginx服务</td></tr></tbody></table>
+
+<hr>
+
+
+
+<h3 id="配置过程">配置过程</h3>
+
+<ol start="1"><li rel="1">创建nginx.repo文件，向里面添加内容：</li>
+</ol>
+
+<blockquote>
+  <p>[root@server-007 ~]# vi /etc/yum.repos.d/nginx.repo</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-light"><code class="hljs ini"><div class="hljs-line"><span class="hljs-section">[nginx]</span>
+</div><div class="hljs-line"><span class="hljs-attr">name</span>=nginx repo
+</div><div class="hljs-line"><span class="hljs-attr">baseurl</span>=http://nginx.org/packages/centos/<span class="hljs-number">7</span>/<span class="hljs-variable">$basearch</span>/
+</div><div class="hljs-line"><span class="hljs-attr">gpgcheck</span>=<span class="hljs-number">0</span>
+</div><div class="hljs-line"><span class="hljs-attr">enabled</span>=<span class="hljs-number">1</span>
+</div></code></pre>
+
+<ol start="2"><li rel="2">执行yum安装 </li>
+</ol>
+
+<blockquote>
+  <p>[root@server-007 ~]# yum install nginx -y</p>
+</blockquote>
+
+<ol start="3"><li rel="3">修改配置文件 </li>
+</ol>
+
+<blockquote>
+  <p>[root@server-007 ~]# vi /etc/nginx/nginx.conf</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-light"><code class="hljs tp"><div class="hljs-line">user  root;
+</div><div class="hljs-line">worker_processes  auto;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">error_log  /var/log/nginx/error.log warn;
+</div><div class="hljs-line">pid        /var/run/nginx.pid;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">events {
+</div><div class="hljs-line">    worker_connections  <span class="hljs-number">1024</span>;
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">http {
+</div><div class="hljs-line">    include       /etc/nginx/mime.types;
+</div><div class="hljs-line">    default_type  application/octet-stream;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    log_format  main  <span class="hljs-string">'$remote_addr - $remote_user [$time_local] "$request" '</span>
+</div><div class="hljs-line">                      <span class="hljs-string">'$status $body_bytes_sent "$http_referer" '</span>
+</div><div class="hljs-line">                      <span class="hljs-string">'"$http_user_agent" "$http_x_forwarded_for" "$request_time"'</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    access_log  /var/log/nginx/access.log  main;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    sendfile        on;
+</div><div class="hljs-line">    #tcp_nopush     on;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    keepalive_timeout  <span class="hljs-number">65</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    fastcgi_buffer_size <span class="hljs-number">1024</span>k; 
+</div><div class="hljs-line">    fastcgi_buffers <span class="hljs-number">6</span> <span class="hljs-number">256</span>k; 
+</div><div class="hljs-line">    fastcgi_busy_buffers_size <span class="hljs-number">1024</span>k; 
+</div><div class="hljs-line">    client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">    client_body_buffer_size <span class="hljs-number">2048</span>k;
+</div><div class="hljs-line">    proxy_max_temp_file_size <span class="hljs-number">0</span>;
+</div><div class="hljs-line">    proxy_buffering off;
+</div><div class="hljs-line">    proxy_connect_timeout <span class="hljs-number">172800</span>;
+</div><div class="hljs-line">    proxy_send_timeout <span class="hljs-number">172800</span>;
+</div><div class="hljs-line">    proxy_read_timeout <span class="hljs-number">60</span>;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    #gzip  on;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    include /etc/nginx/conf.d/*.conf;
+</div><div class="hljs-line"><wbr>
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  *.lib.hnlat.com yunscholar.com *.yunscholar.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.6;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  *.uc.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.6;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name   api.spischolar.com csust.spischolar.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.2;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name   svn.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.1.2:8000;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name   spis.spischolar.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.1.101:18080;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }      
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  crs.spischolar.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.2:28080;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  spischolar.com www.spischolar.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.2:18080;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  bse.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.5;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  test.spischolar.com csxy.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.3;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  test.api.v<span class="hljs-number">3</span>.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.3:8081;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  crs.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.14:28080;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  sso.hnlat.top;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.1.101:8080;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  img.hnlat.com yum.hnlat.com znl.spischolar.com coreoa.hnlat.com crscholar.com www.crscholar.com test.crscholar.com api.v<span class="hljs-number">2</span>.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.21;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  test.api.t<span class="hljs-number">4</span>.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.21:8082;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  api.v<span class="hljs-number">3</span>.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.21:8083;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">    server{
+</div><div class="hljs-line">        listen        <span class="hljs-number">80</span>;
+</div><div class="hljs-line">        server_name  vpn.hnlat.com;
+</div><div class="hljs-line">        location / {
+</div><div class="hljs-line">            proxy_pass http:<span class="hljs-comment">//192.168.0.5:9999;</span>
+</div><div class="hljs-line">            proxy_set_header Host <span class="hljs-variable">$host</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Real-IP <span class="hljs-variable">$remote_addr</span>;
+</div><div class="hljs-line">            proxy_set_header <span class="hljs-keyword">X</span>-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+</div><div class="hljs-line">            client_max_body_size <span class="hljs-number">100</span>m;
+</div><div class="hljs-line">        }
+</div><div class="hljs-line">    }
+</div><div class="hljs-line">}
+</div><div class="hljs-line"><wbr>
+</div></code></pre>
+
+<ol start="4"><li rel="4">设置开机启动nginx服务 </li>
+</ol>
+
+<blockquote>
+  <p>[root@server-007 ~]# systemctl enable nginx</p>
+</blockquote>
+
+<ol start="5"><li rel="5">设置防火墙允许80端口访问 </li>
+</ol>
+
+<blockquote>
+  <p>[root@server-007 ~]# firewall-cmd –zone=trusted –add-port=80/tcp –permanent</p>
+</blockquote>
+
+
+
+<h3 id="附">附：</h3>
+
+
+
+<h4 id="网卡配置">网卡配置</h4>
+
+<ul><li>网卡1（教育网）配置：</li>
+</ul>
+
+<blockquote>
+  <p>[root@server-007 ~]# more /etc/sysconfig/network-scripts/ifcfg-eno1</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-light"><code class="hljs ini"><div class="hljs-line"><span class="hljs-attr">TYPE</span>=Ethernet
+</div><div class="hljs-line"><span class="hljs-attr">PROXY_METHOD</span>=none
+</div><div class="hljs-line"><span class="hljs-attr">BROWSER_ONLY</span>=<span class="hljs-literal">no</span>
+</div><div class="hljs-line"><span class="hljs-attr">BOOTPROTO</span>=static
+</div><div class="hljs-line"><span class="hljs-attr">DEFROUTE</span>=<span class="hljs-literal">no</span>    ##非默认路由
+</div><div class="hljs-line"><span class="hljs-attr">IPV4_FAILURE_FATAL</span>=<span class="hljs-literal">no</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6INIT</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_AUTOCONF</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_DEFROUTE</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_FAILURE_FATAL</span>=<span class="hljs-literal">no</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_ADDR_GEN_MODE</span>=stable-privacy
+</div><div class="hljs-line"><span class="hljs-attr">NAME</span>=eno1
+</div><div class="hljs-line"><span class="hljs-attr">UUID</span>=bad044c7-cd26-<span class="hljs-number">42</span>b6-bdf4-b1fa227d85f0
+</div><div class="hljs-line"><span class="hljs-attr">DEVICE</span>=eno1
+</div><div class="hljs-line"><span class="hljs-attr">ONBOOT</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPADDR</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">1.7</span>
+</div><div class="hljs-line"><span class="hljs-attr">PREFIX</span>=<span class="hljs-number">24</span>
+</div><div class="hljs-line"><span class="hljs-attr">GATEWAY</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">1.1</span>
+</div><div class="hljs-line"><span class="hljs-attr">DNS1</span>=<span class="hljs-number">202.197</span>.<span class="hljs-number">64.6</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_PRIVACY</span>=<span class="hljs-literal">no</span>
+</div></code></pre>
+
+<ul><li>网卡2（电信网）配置：</li>
+</ul>
+
+<blockquote>
+  <p>[root@server-007 ~]# more /etc/sysconfig/network-scripts/ifcfg-eno2</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-light"><code class="hljs ini"><div class="hljs-line"><span class="hljs-attr">TYPE</span>=Ethernet
+</div><div class="hljs-line"><span class="hljs-attr">PROXY_METHOD</span>=none
+</div><div class="hljs-line"><span class="hljs-attr">BROWSER_ONLY</span>=<span class="hljs-literal">no</span>
+</div><div class="hljs-line"><span class="hljs-attr">BOOTPROTO</span>=static
+</div><div class="hljs-line"><span class="hljs-attr">DEFROUTE</span>=<span class="hljs-literal">yes</span>    ##默认路由
+</div><div class="hljs-line"><span class="hljs-attr">IPV4_FAILURE_FATAL</span>=<span class="hljs-literal">no</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6INIT</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_AUTOCONF</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_DEFROUTE</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_FAILURE_FATAL</span>=<span class="hljs-literal">no</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_ADDR_GEN_MODE</span>=stable-privacy
+</div><div class="hljs-line"><span class="hljs-attr">NAME</span>=eno2
+</div><div class="hljs-line"><span class="hljs-attr">UUID</span>=<span class="hljs-number">3</span>b5bf1bf-<span class="hljs-number">7181</span>-<span class="hljs-number">4</span>cdb-<span class="hljs-number">9</span>b0a-<span class="hljs-number">6</span>f16f6b125df
+</div><div class="hljs-line"><span class="hljs-attr">DEVICE</span>=eno2
+</div><div class="hljs-line"><span class="hljs-attr">ONBOOT</span>=<span class="hljs-literal">yes</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPADDR</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">0.7</span>
+</div><div class="hljs-line"><span class="hljs-attr">PREFIX</span>=<span class="hljs-number">24</span>
+</div><div class="hljs-line"><span class="hljs-attr">GATEWAY</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">0.1</span>
+</div><div class="hljs-line"><span class="hljs-attr">DNS1</span>=<span class="hljs-number">222.246</span>.<span class="hljs-number">129.80</span>
+</div><div class="hljs-line"><span class="hljs-attr">DNS2</span>=<span class="hljs-number">59.51</span>.<span class="hljs-number">78.210</span>
+</div><div class="hljs-line"><span class="hljs-attr">IPV6_PRIVACY</span>=<span class="hljs-literal">no</span>
+</div></code></pre>
+
+<p><strong>注意默认路由只能有一个，改完后需要reboot重启服务器生效</strong></p>
+
+
+
+<h4 id="查看路由">查看路由</h4>
+
+<blockquote>
+  <p>[root@server-007 ~]# ip route list</p>
+</blockquote>
+
+
+
+<pre class="prettyprint hljs-light"><code class="hljs lsl"><div class="hljs-line"><span class="hljs-section">default</span> via <span class="hljs-number">192.168</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span> dev eno2 proto static metric <span class="hljs-number">100</span> 
+</div><div class="hljs-line"><span class="hljs-number">192.168</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>/<span class="hljs-number">24</span> dev eno2 proto kernel scope link src <span class="hljs-number">192.168</span><span class="hljs-number">.0</span><span class="hljs-number">.7</span> metric <span class="hljs-number">100</span> 
+</div><div class="hljs-line"><span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.0</span>/<span class="hljs-number">24</span> dev eno1 proto kernel scope link src <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.7</span> metric <span class="hljs-number">100</span> 
+</div></code></pre>
+
+
+
+<h4 id="路由器nat映射">路由器NAT映射</h4>
+
+<ol><li rel="1">访问192.168.0.1</li>
+<li rel="2">路由器登陆：admin/washc0bl9yb820@weidu</li>
+<li rel="3">虚拟NAT转发，添加/修改</li>
+</ol>
+
+
+
+<pre class="prettyprint hljs-light"><code class="hljs elm"><div class="hljs-line"><span class="hljs-keyword">port</span>-<span class="hljs-keyword">port</span>: 80-80
+</div><div class="hljs-line">host:192.168.0.7
+</div></code></pre></div></body></html>
